@@ -1,0 +1,568 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1C099D11A5E973C3D809D385 /* DuplicateAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BBF261B372384AC30DA06AC /* DuplicateAnalyzerTests.swift */; };
+		2CF1845D71EBEE0D34F75857 /* Music.m in Sources */ = {isa = PBXBuildFile; fileRef = F6C4AF8C3F04B3422F86F205 /* Music.m */; };
+		79BF34AF40A22EAA1F836207 /* MusicAutomation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B446305A16CE465389647E00 /* MusicAutomation.swift */; };
+		8D9E0CC5C4EAF66A380DACC3 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F05C70A4C4F9B26650C978 /* Models.swift */; };
+		A25B02C74E49E69258C58438 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA181B29D8EBD8256590BC96 /* ContentView.swift */; };
+		B658C9406A0875D82D418A40 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B635B12BC633D0D625E33DE7 /* MainViewModel.swift */; };
+		C449FBAFB2FE393EB651372E /* DuplicateAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3389CB9168EF5DE97144AEFB /* DuplicateAnalyzer.swift */; };
+		EE1FE2BD06696062D72A30DC /* AppleMusicDeduplicatorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A31FEF8680F89D8CDB48DC /* AppleMusicDeduplicatorApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		52F445A6B02127C36F83C4CB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83094F40673B942E5BA85071 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8390EFC0BE2E7F8FCEC64787;
+			remoteInfo = AppleMusicDeduplicator;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4073AEC62EAB14CFA41A81FF /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		784DAA848435EFBC3881F06F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		13F05C70A4C4F9B26650C978 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		249FA7D24722D3CD2A1887BB /* AppleMusicDeduplicator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppleMusicDeduplicator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3389CB9168EF5DE97144AEFB /* DuplicateAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateAnalyzer.swift; sourceTree = "<group>"; };
+		3BBF261B372384AC30DA06AC /* DuplicateAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateAnalyzerTests.swift; sourceTree = "<group>"; };
+		4F93C1E926DFC8A266F491F8 /* AppleMusicDeduplicatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppleMusicDeduplicatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B446305A16CE465389647E00 /* MusicAutomation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicAutomation.swift; sourceTree = "<group>"; };
+		B635B12BC633D0D625E33DE7 /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
+		BAEB645621561784A61CEA7D /* AppleMusicDeduplicatorTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "AppleMusicDeduplicatorTests-Info.plist"; sourceTree = "<group>"; };
+		C87E70A101482D2EA4FC2F32 /* AppleMusicDeduplicator-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "AppleMusicDeduplicator-Info.plist"; sourceTree = "<group>"; };
+		D8A31FEF8680F89D8CDB48DC /* AppleMusicDeduplicatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMusicDeduplicatorApp.swift; sourceTree = "<group>"; };
+		EA181B29D8EBD8256590BC96 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F6C4AF8C3F04B3422F86F205 /* Music.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Music.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4A419289FC9C240EE4200EE7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ACE14F9C6C3DA85E6243FD7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		10F2242D5D63D4585EEA1493 /* InfoPlists */ = {
+			isa = PBXGroup;
+			children = (
+				C87E70A101482D2EA4FC2F32 /* AppleMusicDeduplicator-Info.plist */,
+				BAEB645621561784A61CEA7D /* AppleMusicDeduplicatorTests-Info.plist */,
+			);
+			path = InfoPlists;
+			sourceTree = "<group>";
+		};
+		2518C36E36CD8C1CA6102876 /* Derived */ = {
+			isa = PBXGroup;
+			children = (
+				10F2242D5D63D4585EEA1493 /* InfoPlists */,
+			);
+			path = Derived;
+			sourceTree = "<group>";
+		};
+		5B7853648C6FE10E2A8BCB4F /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				B39F9C455DD6FC08CABBB44B /* AppleMusicDeduplicatorTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		9F97123FC1F10B16F5D4A377 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				249FA7D24722D3CD2A1887BB /* AppleMusicDeduplicator.app */,
+				4F93C1E926DFC8A266F491F8 /* AppleMusicDeduplicatorTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A7A1BDE20F620A3F82C5A3D9 = {
+			isa = PBXGroup;
+			children = (
+				9F97123FC1F10B16F5D4A377 /* Products */,
+				E222C6284513257789DD039D /* Project */,
+			);
+			sourceTree = "<group>";
+		};
+		A85F19EFE8E61A1B6BA92900 /* AppleMusicDeduplicator */ = {
+			isa = PBXGroup;
+			children = (
+				D8A31FEF8680F89D8CDB48DC /* AppleMusicDeduplicatorApp.swift */,
+				EA181B29D8EBD8256590BC96 /* ContentView.swift */,
+				3389CB9168EF5DE97144AEFB /* DuplicateAnalyzer.swift */,
+				B635B12BC633D0D625E33DE7 /* MainViewModel.swift */,
+				13F05C70A4C4F9B26650C978 /* Models.swift */,
+				F6C4AF8C3F04B3422F86F205 /* Music.m */,
+				B446305A16CE465389647E00 /* MusicAutomation.swift */,
+			);
+			path = AppleMusicDeduplicator;
+			sourceTree = "<group>";
+		};
+		B39F9C455DD6FC08CABBB44B /* AppleMusicDeduplicatorTests */ = {
+			isa = PBXGroup;
+			children = (
+				3BBF261B372384AC30DA06AC /* DuplicateAnalyzerTests.swift */,
+			);
+			path = AppleMusicDeduplicatorTests;
+			sourceTree = "<group>";
+		};
+		C54D364EB5C605E6D83ABB50 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				A85F19EFE8E61A1B6BA92900 /* AppleMusicDeduplicator */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		E222C6284513257789DD039D /* Project */ = {
+			isa = PBXGroup;
+			children = (
+				2518C36E36CD8C1CA6102876 /* Derived */,
+				C54D364EB5C605E6D83ABB50 /* Sources */,
+				5B7853648C6FE10E2A8BCB4F /* Tests */,
+			);
+			name = Project;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8390EFC0BE2E7F8FCEC64787 /* AppleMusicDeduplicator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7BB7F818971FC02685F0E86E /* Build configuration list for PBXNativeTarget "AppleMusicDeduplicator" */;
+			buildPhases = (
+				BD69D4CAF1E805A4B5A9D110 /* Sources */,
+				617D33FEB38CB4BFA0F7DD82 /* Resources */,
+				4A419289FC9C240EE4200EE7 /* Frameworks */,
+				4073AEC62EAB14CFA41A81FF /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AppleMusicDeduplicator;
+			packageProductDependencies = (
+			);
+			productName = AppleMusicDeduplicator;
+			productReference = 249FA7D24722D3CD2A1887BB /* AppleMusicDeduplicator.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D4920C0A5F69AA3D0C5FDD31 /* AppleMusicDeduplicatorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D0233340EE8D9BA7DA497704 /* Build configuration list for PBXNativeTarget "AppleMusicDeduplicatorTests" */;
+			buildPhases = (
+				02A34AB36506708824A0250B /* Sources */,
+				4EFCDC7934458742CBE51666 /* Resources */,
+				ACE14F9C6C3DA85E6243FD7B /* Frameworks */,
+				784DAA848435EFBC3881F06F /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2D37BD7756FCB2D65C1E4237 /* PBXTargetDependency */,
+			);
+			name = AppleMusicDeduplicatorTests;
+			packageProductDependencies = (
+			);
+			productName = AppleMusicDeduplicatorTests;
+			productReference = 4F93C1E926DFC8A266F491F8 /* AppleMusicDeduplicatorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		83094F40673B942E5BA85071 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				ORGANIZATIONNAME = Hunter;
+				TargetAttributes = {
+					D4920C0A5F69AA3D0C5FDD31 = {
+						TestTargetID = 8390EFC0BE2E7F8FCEC64787;
+					};
+				};
+			};
+			buildConfigurationList = B7073CD7E23B372D1746134A /* Build configuration list for PBXProject "AppleMusicDeduplicator" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A7A1BDE20F620A3F82C5A3D9;
+			productRefGroup = 9F97123FC1F10B16F5D4A377 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8390EFC0BE2E7F8FCEC64787 /* AppleMusicDeduplicator */,
+				D4920C0A5F69AA3D0C5FDD31 /* AppleMusicDeduplicatorTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4EFCDC7934458742CBE51666 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		617D33FEB38CB4BFA0F7DD82 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		02A34AB36506708824A0250B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1C099D11A5E973C3D809D385 /* DuplicateAnalyzerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD69D4CAF1E805A4B5A9D110 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE1FE2BD06696062D72A30DC /* AppleMusicDeduplicatorApp.swift in Sources */,
+				A25B02C74E49E69258C58438 /* ContentView.swift in Sources */,
+				C449FBAFB2FE393EB651372E /* DuplicateAnalyzer.swift in Sources */,
+				B658C9406A0875D82D418A40 /* MainViewModel.swift in Sources */,
+				8D9E0CC5C4EAF66A380DACC3 /* Models.swift in Sources */,
+				2CF1845D71EBEE0D34F75857 /* Music.m in Sources */,
+				79BF34AF40A22EAA1F836207 /* MusicAutomation.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2D37BD7756FCB2D65C1E4237 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AppleMusicDeduplicator;
+			target = 8390EFC0BE2E7F8FCEC64787 /* AppleMusicDeduplicator */;
+			targetProxy = 52F445A6B02127C36F83C4CB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		91BB7E063982CBE9C5F96D4C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				INFOPLIST_FILE = "Derived/InfoPlists/AppleMusicDeduplicatorTests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.hunter.applemusicdeduplicator.tests;
+				PRODUCT_NAME = AppleMusicDeduplicatorTests;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AppleMusicDeduplicator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AppleMusicDeduplicator";
+				TEST_TARGET_NAME = AppleMusicDeduplicator;
+			};
+			name = Release;
+		};
+		BF3DFECB91BC0F1703580382 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C7312509DE4F0C47B6F90E58 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				INFOPLIST_FILE = "Derived/InfoPlists/AppleMusicDeduplicatorTests-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.hunter.applemusicdeduplicator.tests;
+				PRODUCT_NAME = AppleMusicDeduplicatorTests;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = (
+					"$(inherited)",
+					DEBUG,
+				);
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AppleMusicDeduplicator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AppleMusicDeduplicator";
+				TEST_TARGET_NAME = AppleMusicDeduplicator;
+			};
+			name = Debug;
+		};
+		CB48B6995AB0A7C714AC5104 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = "Derived/InfoPlists/AppleMusicDeduplicator-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.hunter.applemusicdeduplicator;
+				PRODUCT_NAME = AppleMusicDeduplicator;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = "Sources/AppleMusicDeduplicator/MusicBridge-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		CB50826F2997EFB01A9D99A6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = "Derived/InfoPlists/AppleMusicDeduplicator-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L$(DT_TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.hunter.applemusicdeduplicator;
+				PRODUCT_NAME = AppleMusicDeduplicator;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = (
+					"$(inherited)",
+					DEBUG,
+				);
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_OBJC_BRIDGING_HEADER = "Sources/AppleMusicDeduplicator/MusicBridge-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		EB30FA8179C528FD3E733CF2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7BB7F818971FC02685F0E86E /* Build configuration list for PBXNativeTarget "AppleMusicDeduplicator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB50826F2997EFB01A9D99A6 /* Debug */,
+				CB48B6995AB0A7C714AC5104 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B7073CD7E23B372D1746134A /* Build configuration list for PBXProject "AppleMusicDeduplicator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB30FA8179C528FD3E733CF2 /* Debug */,
+				BF3DFECB91BC0F1703580382 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D0233340EE8D9BA7DA497704 /* Build configuration list for PBXNativeTarget "AppleMusicDeduplicatorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7312509DE4F0C47B6F90E58 /* Debug */,
+				91BB7E063982CBE9C5F96D4C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 83094F40673B942E5BA85071 /* Project object */;
+}
