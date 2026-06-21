@@ -15,14 +15,6 @@ This project was created with OpenAI Codex from requirements, review, and testin
 
 ## Build
 
-Generate the Xcode project:
-
-```sh
-tuist generate
-```
-
-`tuist generate` only creates or updates the Xcode project and workspace. It does not compile the application.
-
 Build the application:
 
 ```sh
