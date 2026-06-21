@@ -10,6 +10,7 @@ final class MainViewModel {
         case loading
         case scanning
         case applying
+        case verifyingRemovals
     }
 
     private(set) var playlists: [PlaylistSummary] = []
@@ -212,7 +213,8 @@ final class MainViewModel {
                     : "Removed \(result.removedEntries), \(result.failures.count) failed"
 
                 if result.removedEntries > 0 {
-                    workState = .scanning
+                    workState = .verifyingRemovals
+                    statusMessage = "Verifying removals and checking for duplicates"
 
                     do {
                         let rescannedDuplicates = try await musicAutomation.scanPlaylists(withIDs: playlistIDs)
@@ -224,6 +226,9 @@ final class MainViewModel {
                                 ($0.id, Set($0.occurrences.map(\.playlistID)))
                             }
                         )
+                        statusMessage = rescannedDuplicates.isEmpty
+                            ? "Verification complete — no duplicates remain"
+                            : "Verification complete — \(rescannedDuplicates.count) duplicate songs remain"
                     } catch {
                         duplicates = []
                         keepSelections = [:]

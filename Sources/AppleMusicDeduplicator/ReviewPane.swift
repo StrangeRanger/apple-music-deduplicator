@@ -13,6 +13,8 @@ struct ReviewPane: View {
                 ProgressStateView(title: "Loading playlists")
             } else if viewModel.workState == .scanning {
                 ProgressStateView(title: "Scanning playlists")
+            } else if viewModel.workState == .verifyingRemovals {
+                ProgressStateView(title: "Verifying removals and checking for duplicates")
             } else if viewModel.duplicates.isEmpty {
                 EmptyReviewState(
                     selectedCount: viewModel.selectedPlaylistIDs.count,
