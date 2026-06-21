@@ -15,11 +15,26 @@ This project was created with OpenAI Codex from requirements, review, and testin
 
 ## Build
 
+Generate the Xcode project:
+
 ```sh
 tuist generate
+```
+
+`tuist generate` only creates or updates the Xcode project and workspace. It does not compile the application.
+
+Build the application:
+
+```sh
+xcodebuild build -project AppleMusicDeduplicator.xcodeproj -scheme AppleMusicDeduplicator -destination 'platform=macOS' -derivedDataPath DerivedData
+```
+
+Run the unit tests:
+
+```sh
 xcodebuild test -project AppleMusicDeduplicator.xcodeproj -scheme AppleMusicDeduplicator -destination 'platform=macOS' -derivedDataPath DerivedData
 ```
 
-Open `AppleMusicDeduplicator.xcodeproj` in Xcode and run the `AppleMusicDeduplicator` scheme.
+Alternatively, open `AppleMusicDeduplicator.xcodeproj` in Xcode. Press Command-B to build or Command-R to build and run the `AppleMusicDeduplicator` scheme.
 
 The first scan will trigger macOS Automation permission for Music. If access is denied, enable it in System Settings > Privacy & Security > Automation.
