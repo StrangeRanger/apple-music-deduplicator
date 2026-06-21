@@ -47,6 +47,19 @@ final class DuplicateAnalyzerTests: XCTestCase {
         XCTAssertEqual(requests.map(\.playlistID), ["b"])
     }
 
+    func testRemovalBatchesGroupByPlaylistAndPreserveFirstSeenOrder() {
+        let requests = [
+            removalRequest(trackKey: "1", playlistID: "b"),
+            removalRequest(trackKey: "2", playlistID: "a"),
+            removalRequest(trackKey: "3", playlistID: "b")
+        ]
+
+        let batches = MusicAutomation.removalBatches(from: requests)
+
+        XCTAssertEqual(batches.map { $0.map(\.playlistID) }, [["b", "b"], ["a"]])
+        XCTAssertEqual(batches.map { $0.map(\.trackKey) }, [["1", "3"], ["2"]])
+    }
+
     private func occurrence(
         trackKey: String,
         playlistID: String,
@@ -61,6 +74,15 @@ final class DuplicateAnalyzerTests: XCTestCase {
             playlistID: playlistID,
             playlistName: playlistName,
             canRemoveFromPlaylist: true
+        )
+    }
+
+    private func removalRequest(trackKey: String, playlistID: String) -> RemovalRequest {
+        RemovalRequest(
+            trackKey: trackKey,
+            playlistID: playlistID,
+            trackTitle: "Song \(trackKey)",
+            playlistName: "Playlist \(playlistID)"
         )
     }
 }

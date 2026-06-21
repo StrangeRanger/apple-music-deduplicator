@@ -15,6 +15,12 @@ This project was created with OpenAI Codex from requirements, review, and testin
 
 ## Build
 
+Build and launch the app through the project entrypoint:
+
+```sh
+./script/build_and_run.sh
+```
+
 Build the application:
 
 ```sh

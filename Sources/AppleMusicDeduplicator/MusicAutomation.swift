@@ -93,84 +93,77 @@ final class MusicAutomation: Sendable {
 
             var removedEntries = 0
             var failures: [RemovalFailure] = []
+            var completedRequests = 0
 
-            for (index, request) in requests.enumerated() {
-                guard let playlist = playlistsByID[request.playlistID] else {
-                    failures.append(
-                        RemovalFailure(
-                            trackKey: request.trackKey,
-                            playlistID: request.playlistID,
-                            trackTitle: request.trackTitle,
-                            playlistName: request.playlistName,
-                            message: MusicAutomationError.playlistUnavailable(request.playlistName).localizedDescription
-                        )
+            func recordFailure(_ request: RemovalRequest, message: String) {
+                failures.append(
+                    RemovalFailure(
+                        trackKey: request.trackKey,
+                        playlistID: request.playlistID,
+                        trackTitle: request.trackTitle,
+                        playlistName: request.playlistName,
+                        message: message
                     )
-                    Self.reportProgress(
-                        completedRequests: index + 1,
-                        totalRequests: requests.count,
-                        removedEntries: removedEntries,
-                        request: request,
-                        progressHandler: progressHandler
-                    )
-                    continue
-                }
-
-                guard Self.canRemoveTracks(from: playlist) else {
-                    failures.append(
-                        RemovalFailure(
-                            trackKey: request.trackKey,
-                            playlistID: request.playlistID,
-                            trackTitle: request.trackTitle,
-                            playlistName: request.playlistName,
-                            message: "This playlist cannot be edited by Music automation."
-                        )
-                    )
-                    Self.reportProgress(
-                        completedRequests: index + 1,
-                        totalRequests: requests.count,
-                        removedEntries: removedEntries,
-                        request: request,
-                        progressHandler: progressHandler
-                    )
-                    continue
-                }
-
-                let matchingTracks = Self.tracks(in: playlist).filter {
-                    String($0.databaseID) == request.trackKey
-                }
-
-                if matchingTracks.isEmpty {
-                    failures.append(
-                        RemovalFailure(
-                            trackKey: request.trackKey,
-                            playlistID: request.playlistID,
-                            trackTitle: request.trackTitle,
-                            playlistName: request.playlistName,
-                            message: "Track was not found in this playlist."
-                        )
-                    )
-                    Self.reportProgress(
-                        completedRequests: index + 1,
-                        totalRequests: requests.count,
-                        removedEntries: removedEntries,
-                        request: request,
-                        progressHandler: progressHandler
-                    )
-                    continue
-                }
-
-                for track in matchingTracks.reversed() {
-                    track.delete()
-                    removedEntries += 1
-                }
-
+                )
+                completedRequests += 1
                 Self.reportProgress(
-                    completedRequests: index + 1,
+                    completedRequests: completedRequests,
                     totalRequests: requests.count,
                     removedEntries: removedEntries,
                     request: request,
                     progressHandler: progressHandler
                 )
+            }
+
+            for batch in Self.removalBatches(from: requests) {
+                guard let firstRequest = batch.first else { continue }
+
+                guard let playlist = playlistsByID[firstRequest.playlistID] else {
+                    for request in batch {
+                        recordFailure(
+                            request,
+                            message: MusicAutomationError.playlistUnavailable(request.playlistName)
+                                .localizedDescription
+                        )
+                    }
+                    continue
+                }
+
+                guard Self.canRemoveTracks(from: playlist) else {
+                    for request in batch {
+                        recordFailure(
+                            request,
+                            message: "This playlist cannot be edited by Music automation."
+                        )
+                    }
+                    continue
+                }
+
+                var tracksByKey = Dictionary(grouping: Self.tracks(in: playlist)) {
+                    String($0.databaseID)
+                }
+
+                for request in batch {
+                    guard let matchingTracks = tracksByKey.removeValue(forKey: request.trackKey),
+                          !matchingTracks.isEmpty else {
+                        recordFailure(request, message: "Track was not found in this playlist.")
+                        continue
+                    }
+
+                    for track in matchingTracks.reversed() {
+                        track.delete()
+                        removedEntries += 1
+                    }
+
+                    completedRequests += 1
+                    Self.reportProgress(
+                        completedRequests: completedRequests,
+                        totalRequests: requests.count,
+                        removedEntries: removedEntries,
+                        request: request,
+                        progressHandler: progressHandler
+                    )
+                }
             }
 
             try Self.throwLastErrorIfNeeded(from: music)
@@ -181,6 +174,22 @@ final class MusicAutomation: Sendable {
                 failures: failures
             )
         }
+    }
+
+    static func removalBatches(from requests: [RemovalRequest]) -> [[RemovalRequest]] {
+        var batchIndexByPlaylistID: [String: Int] = [:]
+        var batches: [[RemovalRequest]] = []
+
+        for request in requests {
+            if let batchIndex = batchIndexByPlaylistID[request.playlistID] {
+                batches[batchIndex].append(request)
+            } else {
+                batchIndexByPlaylistID[request.playlistID] = batches.count
+                batches.append([request])
+            }
+        }
+
+        return batches
     }
 
     private struct PlaylistContext {

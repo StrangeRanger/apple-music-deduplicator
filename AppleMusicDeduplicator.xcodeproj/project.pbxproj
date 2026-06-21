@@ -12,8 +12,10 @@
 		79BF34AF40A22EAA1F836207 /* MusicAutomation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B446305A16CE465389647E00 /* MusicAutomation.swift */; };
 		8D9E0CC5C4EAF66A380DACC3 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F05C70A4C4F9B26650C978 /* Models.swift */; };
 		A25B02C74E49E69258C58438 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA181B29D8EBD8256590BC96 /* ContentView.swift */; };
+		A6D1798BA65D4DC788EDE7BF /* PlaylistSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83493ECDA4E44B9BB6FA60C8 /* PlaylistSidebar.swift */; };
 		B658C9406A0875D82D418A40 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B635B12BC633D0D625E33DE7 /* MainViewModel.swift */; };
 		C449FBAFB2FE393EB651372E /* DuplicateAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3389CB9168EF5DE97144AEFB /* DuplicateAnalyzer.swift */; };
+		DCD2A0A70764411384C91A7C /* ReviewPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B42FB8E88BB4E5093990833 /* ReviewPane.swift */; };
 		EE1FE2BD06696062D72A30DC /* AppleMusicDeduplicatorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A31FEF8680F89D8CDB48DC /* AppleMusicDeduplicatorApp.swift */; };
 /* End PBXBuildFile section */
 
@@ -51,12 +53,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0B42FB8E88BB4E5093990833 /* ReviewPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPane.swift; sourceTree = "<group>"; };
 		13F05C70A4C4F9B26650C978 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		1E83098593690ED3A1A01401 /* AppleMusicDeduplicator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AppleMusicDeduplicator.entitlements; sourceTree = "<group>"; };
 		249FA7D24722D3CD2A1887BB /* AppleMusicDeduplicator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppleMusicDeduplicator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3389CB9168EF5DE97144AEFB /* DuplicateAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateAnalyzer.swift; sourceTree = "<group>"; };
 		3BBF261B372384AC30DA06AC /* DuplicateAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateAnalyzerTests.swift; sourceTree = "<group>"; };
 		4F93C1E926DFC8A266F491F8 /* AppleMusicDeduplicatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppleMusicDeduplicatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		83493ECDA4E44B9BB6FA60C8 /* PlaylistSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistSidebar.swift; sourceTree = "<group>"; };
 		B446305A16CE465389647E00 /* MusicAutomation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicAutomation.swift; sourceTree = "<group>"; };
 		B635B12BC633D0D625E33DE7 /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		D8A31FEF8680F89D8CDB48DC /* AppleMusicDeduplicatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMusicDeduplicatorApp.swift; sourceTree = "<group>"; };
@@ -113,6 +117,8 @@
 				1E83098593690ED3A1A01401 /* AppleMusicDeduplicator.entitlements */,
 				D8A31FEF8680F89D8CDB48DC /* AppleMusicDeduplicatorApp.swift */,
 				EA181B29D8EBD8256590BC96 /* ContentView.swift */,
+				83493ECDA4E44B9BB6FA60C8 /* PlaylistSidebar.swift */,
+				0B42FB8E88BB4E5093990833 /* ReviewPane.swift */,
 				3389CB9168EF5DE97144AEFB /* DuplicateAnalyzer.swift */,
 				B635B12BC633D0D625E33DE7 /* MainViewModel.swift */,
 				13F05C70A4C4F9B26650C978 /* Models.swift */,
@@ -256,6 +262,8 @@
 			files = (
 				EE1FE2BD06696062D72A30DC /* AppleMusicDeduplicatorApp.swift in Sources */,
 				A25B02C74E49E69258C58438 /* ContentView.swift in Sources */,
+				A6D1798BA65D4DC788EDE7BF /* PlaylistSidebar.swift in Sources */,
+				DCD2A0A70764411384C91A7C /* ReviewPane.swift in Sources */,
 				C449FBAFB2FE393EB651372E /* DuplicateAnalyzer.swift in Sources */,
 				B658C9406A0875D82D418A40 /* MainViewModel.swift in Sources */,
 				8D9E0CC5C4EAF66A380DACC3 /* Models.swift in Sources */,
