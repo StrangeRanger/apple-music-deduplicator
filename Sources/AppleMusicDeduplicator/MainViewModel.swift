@@ -1,8 +1,10 @@
 import AppKit
 import Foundation
+import Observation
 
 @MainActor
-final class MainViewModel: ObservableObject {
+@Observable
+final class MainViewModel {
     enum WorkState: Equatable {
         case idle
         case loading
@@ -10,16 +12,16 @@ final class MainViewModel: ObservableObject {
         case applying
     }
 
-    @Published private(set) var playlists: [PlaylistSummary] = []
-    @Published var selectedPlaylistIDs = Set<String>()
-    @Published private(set) var duplicates: [DuplicateSong] = []
-    @Published private(set) var keepSelections: [String: Set<String>] = [:]
-    @Published private(set) var workState: WorkState = .idle
-    @Published var filterText = ""
-    @Published var statusMessage = ""
-    @Published var errorMessage: String?
-    @Published var lastRemovalResult: RemovalResult?
-    @Published private(set) var removalProgress: RemovalProgress?
+    private(set) var playlists: [PlaylistSummary] = []
+    private(set) var selectedPlaylistIDs = Set<String>()
+    private(set) var duplicates: [DuplicateSong] = []
+    private(set) var keepSelections: [String: Set<String>] = [:]
+    private(set) var workState: WorkState = .idle
+    var filterText = ""
+    var statusMessage = ""
+    var errorMessage: String?
+    var lastRemovalResult: RemovalResult?
+    private(set) var removalProgress: RemovalProgress?
 
     private let musicAutomation: MusicAutomation
 
@@ -47,10 +49,6 @@ final class MainViewModel: ObservableObject {
         DuplicateAnalyzer.removalRequests(duplicates: duplicates, keepSelections: keepSelections)
     }
 
-    var canApplyRemovals: Bool {
-        !pendingRemovals.isEmpty && workState == .idle
-    }
-
     var selectedCountText: String {
         "\(selectedPlaylistIDs.count) selected"
     }
@@ -62,6 +60,8 @@ final class MainViewModel: ObservableObject {
         errorMessage = nil
         lastRemovalResult = nil
         removalProgress = nil
+        duplicates = []
+        keepSelections = [:]
         statusMessage = "Loading playlists"
 
         Task {
@@ -79,6 +79,8 @@ final class MainViewModel: ObservableObject {
     }
 
     func setSelected(_ isSelected: Bool, playlistID: String) {
+        guard workState == .idle else { return }
+
         if isSelected {
             selectedPlaylistIDs.insert(playlistID)
         } else {
@@ -94,15 +96,22 @@ final class MainViewModel: ObservableObject {
     func scanSelectedPlaylists() {
         guard canScan else { return }
 
+        let playlistIDs = selectedPlaylistIDs
         workState = .scanning
         errorMessage = nil
         lastRemovalResult = nil
         removalProgress = nil
+        duplicates = []
+        keepSelections = [:]
         statusMessage = "Scanning selected playlists"
 
         Task {
+            defer { workState = .idle }
+
             do {
-                let scannedDuplicates = try await musicAutomation.scanPlaylists(withIDs: selectedPlaylistIDs)
+                let scannedDuplicates = try await musicAutomation.scanPlaylists(withIDs: playlistIDs)
+                guard selectedPlaylistIDs == playlistIDs else { return }
+
                 duplicates = scannedDuplicates
                 keepSelections = Dictionary(
                     uniqueKeysWithValues: scannedDuplicates.map {
@@ -116,13 +125,12 @@ final class MainViewModel: ObservableObject {
                 errorMessage = error.localizedDescription
                 statusMessage = "Scan failed"
             }
-
-            workState = .idle
         }
     }
 
     func setKeep(_ keep: Bool, duplicateID: String, playlistID: String) {
-        guard let duplicate = duplicates.first(where: { $0.id == duplicateID }),
+        guard workState == .idle,
+              let duplicate = duplicates.first(where: { $0.id == duplicateID }),
               let occurrence = duplicate.occurrences.first(where: { $0.playlistID == playlistID }),
               occurrence.canRemove || keep else {
             return
@@ -145,7 +153,10 @@ final class MainViewModel: ObservableObject {
     }
 
     func keepOnly(playlistID: String, duplicateID: String) {
-        guard let duplicate = duplicates.first(where: { $0.id == duplicateID }) else { return }
+        guard workState == .idle,
+              let duplicate = duplicates.first(where: { $0.id == duplicateID }) else {
+            return
+        }
 
         var kept = Set([playlistID])
         let lockedPlaylistIDs = duplicate.occurrences
@@ -157,6 +168,8 @@ final class MainViewModel: ObservableObject {
     }
 
     func resetReviewChoices() {
+        guard workState == .idle else { return }
+
         keepSelections = Dictionary(
             uniqueKeysWithValues: duplicates.map {
                 ($0.id, Set($0.occurrences.map(\.playlistID)))
@@ -168,6 +181,7 @@ final class MainViewModel: ObservableObject {
         let requests = pendingRemovals
         guard !requests.isEmpty, workState == .idle else { return }
 
+        let playlistIDs = selectedPlaylistIDs
         workState = .applying
         errorMessage = nil
         lastRemovalResult = nil
@@ -181,11 +195,15 @@ final class MainViewModel: ObservableObject {
         statusMessage = "Removing 0 of \(requests.count)"
 
         Task {
+            defer { workState = .idle }
+
             do {
                 let result = try await musicAutomation.applyRemovals(requests) { [weak self] progress in
                     Task { @MainActor [weak self] in
-                        self?.removalProgress = progress
-                        self?.statusMessage = "Removing \(progress.countText)"
+                        guard let self, self.workState == .applying else { return }
+
+                        self.removalProgress = progress
+                        self.statusMessage = "Removing \(progress.countText)"
                     }
                 }
                 lastRemovalResult = result
@@ -194,20 +212,31 @@ final class MainViewModel: ObservableObject {
                     : "Removed \(result.removedEntries), \(result.failures.count) failed"
 
                 if result.removedEntries > 0 {
-                    let rescannedDuplicates = try await musicAutomation.scanPlaylists(withIDs: selectedPlaylistIDs)
-                    duplicates = rescannedDuplicates
-                    keepSelections = Dictionary(
-                        uniqueKeysWithValues: rescannedDuplicates.map {
-                            ($0.id, Set($0.occurrences.map(\.playlistID)))
-                        }
-                    )
+                    workState = .scanning
+
+                    do {
+                        let rescannedDuplicates = try await musicAutomation.scanPlaylists(withIDs: playlistIDs)
+                        guard selectedPlaylistIDs == playlistIDs else { return }
+
+                        duplicates = rescannedDuplicates
+                        keepSelections = Dictionary(
+                            uniqueKeysWithValues: rescannedDuplicates.map {
+                                ($0.id, Set($0.occurrences.map(\.playlistID)))
+                            }
+                        )
+                    } catch {
+                        duplicates = []
+                        keepSelections = [:]
+                        errorMessage = "Removals were applied, but the refresh failed: \(error.localizedDescription)"
+                        statusMessage = "Removals applied; rescan required"
+                    }
                 }
             } catch {
+                duplicates = []
+                keepSelections = [:]
                 errorMessage = error.localizedDescription
-                statusMessage = "Apply failed"
+                statusMessage = "Apply failed; rescan required"
             }
-
-            workState = .idle
         }
     }
 }
