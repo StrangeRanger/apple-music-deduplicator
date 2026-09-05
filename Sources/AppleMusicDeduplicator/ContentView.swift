@@ -28,6 +28,14 @@ struct ContentView: View {
                 }
                 .keyboardShortcut("r", modifiers: [.command])
                 .disabled(!viewModel.canScan)
+
+                Button {
+                    Task { await viewModel.pauseMusic() }
+                } label: {
+                    Label("Pause Music", systemImage: "pause.fill")
+                }
+                .disabled(viewModel.workState != .idle)
+                .help("Pause the song currently playing in Music")
             }
         }
         .alert(

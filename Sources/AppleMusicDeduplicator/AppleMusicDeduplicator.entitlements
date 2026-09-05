@@ -12,6 +12,7 @@
 		<array>
 			<string>com.apple.Music.library.read</string>
 			<string>com.apple.Music.library.read-write</string>
+			<string>com.apple.Music.playback</string>
 		</array>
 	</dict>
 </dict>

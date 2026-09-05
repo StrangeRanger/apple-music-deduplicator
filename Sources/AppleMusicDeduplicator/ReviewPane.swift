@@ -167,6 +167,24 @@ private struct DuplicateSongRow: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(.quaternary, in: Capsule())
+
+                Button {
+                    Task { await viewModel.play(duplicate) }
+                } label: {
+                    HStack(spacing: 6) {
+                        if viewModel.workState == .startingPlayback(duplicate.id) {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "play.fill")
+                        }
+                        Text("Play")
+                    }
+                }
+                .buttonStyle(.borderless)
+                .disabled(viewModel.workState != .idle)
+                .help("Play \(duplicate.title) once in Music")
+                .accessibilityLabel("Play \(duplicate.title) by \(duplicate.artist) in Music")
             }
 
             Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 12, verticalSpacing: 8) {

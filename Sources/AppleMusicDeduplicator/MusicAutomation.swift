@@ -1,6 +1,11 @@
 import Foundation
 import ScriptingBridge
 
+protocol MusicPlayback: Sendable {
+    func play(_ song: DuplicateSong) async throws
+    func pause() async throws
+}
+
 enum MusicAutomationError: LocalizedError {
     case musicUnavailable
     case permissionDenied
@@ -8,6 +13,7 @@ enum MusicAutomationError: LocalizedError {
     case playlistUnavailable(String)
     case invalidTrackData(String)
     case playlistChanged(String)
+    case trackUnavailable(String)
 
     var errorDescription: String? {
         switch self {
@@ -23,11 +29,42 @@ enum MusicAutomationError: LocalizedError {
             "Music returned incomplete track data for \"\(playlistName)\". Please scan again."
         case .playlistChanged(let playlistName):
             "Playlist \"\(playlistName)\" changed while scanning. Please scan again."
+        case .trackUnavailable(let title):
+            "Could not find \"\(title)\" in Music. It may have been removed from your library. Please scan again."
         }
     }
 }
 
-final class MusicAutomation: Sendable {
+final class MusicAutomation: MusicPlayback {
+    func play(_ song: DuplicateSong) async throws {
+        guard let databaseID = Int(song.id), databaseID > 0 else {
+            throw MusicAutomationError.trackUnavailable(song.title)
+        }
+
+        try await Self.runOffMain {
+            let music = try Self.musicApplication()
+
+            // Filter the live element array by library identity. Playlist object
+            // IDs and song titles are not reliable substitutes for database IDs.
+            let track = AMDFindTrack(music, databaseID)
+            try Self.throwLastErrorIfNeeded(from: music)
+            guard let track else {
+                throw MusicAutomationError.trackUnavailable(song.title)
+            }
+
+            AMDPlayTrackOnce(music, track)
+            try Self.throwLastErrorIfNeeded(from: music)
+        }
+    }
+
+    func pause() async throws {
+        try await Self.runOffMain {
+            let music = try Self.musicApplication()
+            music.pause()
+            try Self.throwLastErrorIfNeeded(from: music)
+        }
+    }
+
     func loadPlaylists() async throws -> [PlaylistSummary] {
         try await Self.runOffMain {
             let music = try Self.musicApplication()

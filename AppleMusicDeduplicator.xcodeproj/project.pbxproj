@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03E1E2A14C1E4A0D8D882973 /* PlaybackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B76AE565A74AB9B1EA9F6E /* PlaybackTests.swift */; };
 		1C099D11A5E973C3D809D385 /* DuplicateAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BBF261B372384AC30DA06AC /* DuplicateAnalyzerTests.swift */; };
 		2CF1845D71EBEE0D34F75857 /* Music.m in Sources */ = {isa = PBXBuildFile; fileRef = F6C4AF8C3F04B3422F86F205 /* Music.m */; };
 		79BF34AF40A22EAA1F836207 /* MusicAutomation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B446305A16CE465389647E00 /* MusicAutomation.swift */; };
@@ -53,6 +54,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		99B76AE565A74AB9B1EA9F6E /* PlaybackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackTests.swift; sourceTree = "<group>"; };
 		0B42FB8E88BB4E5093990833 /* ReviewPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPane.swift; sourceTree = "<group>"; };
 		13F05C70A4C4F9B26650C978 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		1E83098593690ED3A1A01401 /* AppleMusicDeduplicator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AppleMusicDeduplicator.entitlements; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				3BBF261B372384AC30DA06AC /* DuplicateAnalyzerTests.swift */,
+				99B76AE565A74AB9B1EA9F6E /* PlaybackTests.swift */,
 			);
 			path = AppleMusicDeduplicatorTests;
 			sourceTree = "<group>";
@@ -253,6 +256,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1C099D11A5E973C3D809D385 /* DuplicateAnalyzerTests.swift in Sources */,
+				03E1E2A14C1E4A0D8D882973 /* PlaybackTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,7 +431,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Apple Music Deduplicator";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Apple Music Deduplicator needs access to Music to read playlists and remove selected playlist entries.";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Apple Music Deduplicator needs access to Music to read playlists, play and pause songs, and remove selected playlist entries.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -484,7 +488,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Apple Music Deduplicator";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Apple Music Deduplicator needs access to Music to read playlists and remove selected playlist entries.";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Apple Music Deduplicator needs access to Music to read playlists, play and pause songs, and remove selected playlist entries.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

@@ -11,6 +11,8 @@ final class MainViewModel {
         case scanning
         case applying
         case verifyingRemovals
+        case startingPlayback(String)
+        case pausingPlayback
     }
 
     private(set) var playlists: [PlaylistSummary] = []
@@ -25,9 +27,42 @@ final class MainViewModel {
     private(set) var removalProgress: RemovalProgress?
 
     private let musicAutomation: MusicAutomation
+    private let musicPlayback: any MusicPlayback
 
-    init(musicAutomation: MusicAutomation = MusicAutomation()) {
+    init(
+        musicAutomation: MusicAutomation = MusicAutomation(),
+        musicPlayback: (any MusicPlayback)? = nil
+    ) {
         self.musicAutomation = musicAutomation
+        self.musicPlayback = musicPlayback ?? musicAutomation
+    }
+
+    func play(_ song: DuplicateSong) async {
+        guard workState == .idle else { return }
+
+        workState = .startingPlayback(song.id)
+        errorMessage = nil
+        defer { workState = .idle }
+
+        do {
+            try await musicPlayback.play(song)
+        } catch {
+            errorMessage = "Could not play \"\(song.title)\": \(error.localizedDescription)"
+        }
+    }
+
+    func pauseMusic() async {
+        guard workState == .idle else { return }
+
+        workState = .pausingPlayback
+        errorMessage = nil
+        defer { workState = .idle }
+
+        do {
+            try await musicPlayback.pause()
+        } catch {
+            errorMessage = "Could not pause Music: \(error.localizedDescription)"
+        }
     }
 
     var filteredPlaylists: [PlaylistSummary] {
