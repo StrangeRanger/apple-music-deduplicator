@@ -12,11 +12,22 @@ APP_BINARY="$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 
 pkill -x "$APP_NAME" >/dev/null 2>&1 || true
 
+"$ROOT_DIR/script/generate_app_icon.sh"
+
 xcodebuild build \
   -project "$ROOT_DIR/AppleMusicDeduplicator.xcodeproj" \
   -scheme "$APP_NAME" \
+  -configuration Debug \
   -destination "platform=macOS" \
   -derivedDataPath "$DERIVED_DATA"
+
+# Rebuilding at the same path can leave macOS using old registration data.
+# Refresh this app's metadata before launch so its bundled icon is picked up.
+/usr/bin/touch "$APP_BUNDLE"
+LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+if [[ -x "$LSREGISTER" ]]; then
+  "$LSREGISTER" -f "$APP_BUNDLE"
+fi
 
 open_app() {
   /usr/bin/open -n "$APP_BUNDLE"
