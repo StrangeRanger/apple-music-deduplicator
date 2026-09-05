@@ -4,13 +4,16 @@ Notable changes to Apple Music Deduplicator are recorded here by version.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-History through 1.1.1 was reconstructed from Git commits. No Git tags or GitHub releases were available, so dates identify commit-based version milestones rather than verified publication dates.
-
 ## [Unreleased]
 
-## [1.1.1] - 2026-09-05
+## [1.2.0] - 2026-09-05
 
-macOS build: 4.
+macOS build: 5.
+
+### Added
+
+- A Play button for each duplicate song to audition it once through Music, plus a toolbar control to pause Music playback.
+- A custom pink-red app icon combining paired musical notes with overlapping playlist outlines.
 
 ### Changed
 
@@ -21,6 +24,7 @@ macOS build: 4.
 ### Fixed
 
 - Report incomplete metadata responses and detected playlist ID or ordering changes during metadata loading as scan errors requiring a rescan.
+- Display “Apple Music Deduplicator” with spaces in the macOS app menu.
 
 ## [1.1.0] - 2026-06-21
 
