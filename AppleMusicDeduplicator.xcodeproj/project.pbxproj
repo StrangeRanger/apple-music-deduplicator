@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		098F3D4E8E024F61851F6996 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B4F5BBF25BC4645B4F7C264 /* Assets.xcassets */; };
 		03E1E2A14C1E4A0D8D882973 /* PlaybackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B76AE565A74AB9B1EA9F6E /* PlaybackTests.swift */; };
 		1C099D11A5E973C3D809D385 /* DuplicateAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BBF261B372384AC30DA06AC /* DuplicateAnalyzerTests.swift */; };
 		2CF1845D71EBEE0D34F75857 /* Music.m in Sources */ = {isa = PBXBuildFile; fileRef = F6C4AF8C3F04B3422F86F205 /* Music.m */; };
@@ -54,6 +55,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7B4F5BBF25BC4645B4F7C264 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		99B76AE565A74AB9B1EA9F6E /* PlaybackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackTests.swift; sourceTree = "<group>"; };
 		0B42FB8E88BB4E5093990833 /* ReviewPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPane.swift; sourceTree = "<group>"; };
 		13F05C70A4C4F9B26650C978 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 		A85F19EFE8E61A1B6BA92900 /* AppleMusicDeduplicator */ = {
 			isa = PBXGroup;
 			children = (
+				7B4F5BBF25BC4645B4F7C264 /* Assets.xcassets */,
 				1E83098593690ED3A1A01401 /* AppleMusicDeduplicator.entitlements */,
 				D8A31FEF8680F89D8CDB48DC /* AppleMusicDeduplicatorApp.swift */,
 				EA181B29D8EBD8256590BC96 /* ContentView.swift */,
@@ -245,6 +248,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				098F3D4E8E024F61851F6996 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -406,7 +410,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = Sources/AppleMusicDeduplicator/AppleMusicDeduplicator.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
@@ -463,7 +466,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = YES;
 				CODE_SIGN_ENTITLEMENTS = Sources/AppleMusicDeduplicator/AppleMusicDeduplicator.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
