@@ -9,15 +9,16 @@ struct PlaylistSummary: Identifiable, Hashable, Sendable {
     let kindLabel: String
 }
 
-struct ScannedTrackOccurrence: Hashable, Sendable {
-    let trackKey: String
+struct PlaylistTrackSnapshot: Sendable {
+    let playlist: PlaylistOccurrence
+    let databaseIDs: [Int]
+}
+
+struct TrackMetadata: Sendable {
     let title: String
     let artist: String
     let album: String
     let time: String
-    let playlistID: String
-    let playlistName: String
-    let canRemoveFromPlaylist: Bool
 }
 
 struct DuplicateSong: Identifiable, Hashable, Sendable {

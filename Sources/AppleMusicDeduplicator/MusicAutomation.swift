@@ -6,6 +6,8 @@ enum MusicAutomationError: LocalizedError {
     case permissionDenied
     case appleEventFailed(String)
     case playlistUnavailable(String)
+    case invalidTrackData(String)
+    case playlistChanged(String)
 
     var errorDescription: String? {
         switch self {
@@ -17,6 +19,10 @@ enum MusicAutomationError: LocalizedError {
             message
         case .playlistUnavailable(let playlistName):
             "Could not find playlist \"\(playlistName)\"."
+        case .invalidTrackData(let playlistName):
+            "Music returned incomplete track data for \"\(playlistName)\". Please scan again."
+        case .playlistChanged(let playlistName):
+            "Playlist \"\(playlistName)\" changed while scanning. Please scan again."
         }
     }
 }
@@ -53,24 +59,59 @@ final class MusicAutomation: Sendable {
     }
 
     func scanPlaylists(withIDs playlistIDs: Set<String>) async throws -> [DuplicateSong] {
-        try await Self.runOffMain {
+        guard playlistIDs.count >= 2 else { return [] }
+
+        return try await Self.runOffMain {
             let music = try Self.musicApplication()
             music.fixedIndexing = true
 
-            let selectedPlaylists = Self.allUserPlaylists(in: music).filter {
-                guard let playlistID = $0.playlist.persistentID.nonEmptyValue else {
-                    return false
-                }
+            var selectedPlaylists: [MusicUserPlaylist] = []
+            var snapshots: [PlaylistTrackSnapshot] = []
+            for context in Self.allUserPlaylists(in: music) {
+                let playlist = context.playlist
+                guard let playlistID = playlist.persistentID.nonEmptyValue,
+                      playlistIDs.contains(playlistID) else { continue }
 
-                return playlistIDs.contains(playlistID)
-            }
-
-            let occurrences = selectedPlaylists.flatMap { context in
-                Self.trackOccurrences(in: context.playlist, sourceName: context.sourceName)
+                let occurrence = PlaylistOccurrence(
+                    playlistID: playlistID,
+                    playlistName: playlist.name.nonEmptyValue ?? "Untitled Playlist",
+                    canRemove: Self.canRemoveTracks(from: playlist)
+                )
+                let databaseIDs = try Self.trackDatabaseIDs(
+                    in: playlist.tracks(), playlistName: occurrence.playlistName, music: music
+                )
+                selectedPlaylists.append(playlist)
+                snapshots.append(PlaylistTrackSnapshot(playlist: occurrence, databaseIDs: databaseIDs))
             }
 
             try Self.throwLastErrorIfNeeded(from: music)
-            return DuplicateAnalyzer.duplicates(from: occurrences)
+            return try DuplicateAnalyzer.duplicates(from: snapshots) { playlistIndex, databaseIDs in
+                try autoreleasepool {
+                    let snapshot = snapshots[playlistIndex]
+                    guard let tracks = selectedPlaylists[playlistIndex].tracks() else {
+                        throw MusicAutomationError.invalidTrackData(snapshot.playlist.playlistName)
+                    }
+
+                    // Apply selectors to the live SBElementArray, before get() or Swift
+                    // iteration, so each property is fetched in one Apple event.
+                    let titles = tracks.array(byApplying: #selector(getter: MusicTrack.name))
+                    try Self.throwLastErrorIfNeeded(from: music)
+                    let artists = tracks.array(byApplying: #selector(getter: MusicTrack.artist))
+                    try Self.throwLastErrorIfNeeded(from: music)
+                    let albums = tracks.array(byApplying: #selector(getter: MusicTrack.album))
+                    try Self.throwLastErrorIfNeeded(from: music)
+                    let times = tracks.array(byApplying: #selector(getter: MusicTrack.time))
+                    try Self.throwLastErrorIfNeeded(from: music)
+                    let currentIDs = try Self.trackDatabaseIDs(
+                        in: tracks, playlistName: snapshot.playlist.playlistName, music: music
+                    )
+
+                    return try Self.trackMetadata(
+                        for: snapshot, requestedIDs: databaseIDs, currentIDs: currentIDs,
+                        titles: titles, artists: artists, albums: albums, times: times
+                    )
+                }
+            }
         }
     }
 
@@ -264,32 +305,55 @@ final class MusicAutomation: Sendable {
         (playlist.tracks().get() as? [MusicTrack]) ?? []
     }
 
-    private static func trackOccurrences(
-        in playlist: MusicUserPlaylist,
-        sourceName: String
-    ) -> [ScannedTrackOccurrence] {
-        guard let playlistID = playlist.persistentID.nonEmptyValue else {
-            return []
+    private static func trackDatabaseIDs(
+        in tracks: SBElementArray,
+        playlistName: String,
+        music: MusicApplication
+    ) throws -> [Int] {
+        try autoreleasepool {
+            // KVC boxes the scalar databaseID property and fetches the entire column.
+            let values = tracks.value(forKey: "databaseID")
+            try throwLastErrorIfNeeded(from: music)
+            guard let numbers = values as? [NSNumber] else {
+                throw MusicAutomationError.invalidTrackData(playlistName)
+            }
+
+            return numbers.map(\.intValue)
+        }
+    }
+
+    static func trackMetadata(
+        for snapshot: PlaylistTrackSnapshot,
+        requestedIDs: Set<Int>,
+        currentIDs: [Int],
+        titles: [Any],
+        artists: [Any],
+        albums: [Any],
+        times: [Any]
+    ) throws -> [Int: TrackMetadata] {
+        // Separate bulk reads must still refer to the same playlist order. Never
+        // zip truncated columns or attach a song's details to a different ID.
+        guard currentIDs == snapshot.databaseIDs else {
+            throw MusicAutomationError.playlistChanged(snapshot.playlist.playlistName)
+        }
+        let count = snapshot.databaseIDs.count
+        guard titles.count == count, artists.count == count,
+              albums.count == count, times.count == count else {
+            throw MusicAutomationError.invalidTrackData(snapshot.playlist.playlistName)
         }
 
-        let playlistName = playlist.name.nonEmptyValue ?? "Untitled Playlist"
-        let canRemove = canRemoveTracks(from: playlist)
-
-        return tracks(in: playlist).compactMap { track -> ScannedTrackOccurrence? in
-            let databaseID = track.databaseID
-            guard databaseID > 0 else { return nil }
-
-            return ScannedTrackOccurrence(
-                trackKey: String(databaseID),
-                title: track.name.nonEmptyValue ?? "Untitled",
-                artist: track.artist.nonEmptyValue ?? "",
-                album: track.album.nonEmptyValue ?? "",
-                time: track.time.nonEmptyValue ?? "",
-                playlistID: playlistID,
-                playlistName: playlistName,
-                canRemoveFromPlaylist: canRemove
+        var metadata: [Int: TrackMetadata] = [:]
+        metadata.reserveCapacity(requestedIDs.count)
+        for (index, databaseID) in snapshot.databaseIDs.enumerated()
+        where requestedIDs.contains(databaseID) && metadata[databaseID] == nil {
+            metadata[databaseID] = TrackMetadata(
+                title: titles[index] as? String ?? "",
+                artist: artists[index] as? String ?? "",
+                album: albums[index] as? String ?? "",
+                time: times[index] as? String ?? ""
             )
         }
+        return metadata
     }
 
     private static func canRemoveTracks(from playlist: MusicUserPlaylist) -> Bool {

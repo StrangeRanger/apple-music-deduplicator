@@ -1,24 +1,65 @@
 import Foundation
 
 enum DuplicateAnalyzer {
-    static func duplicates(from occurrences: [ScannedTrackOccurrence]) -> [DuplicateSong] {
-        let grouped = Dictionary(grouping: occurrences, by: \.trackKey)
+    enum ScanError: LocalizedError {
+        case incompleteMetadata
 
-        return grouped.compactMap { trackKey, trackOccurrences in
-            let uniqueOccurrences = uniquePlaylistOccurrences(from: trackOccurrences)
-            guard uniqueOccurrences.count > 1 else { return nil }
-
-            let display = trackOccurrences.first
-            return DuplicateSong(
-                id: trackKey,
-                title: display?.title.nonEmptyValue ?? "Untitled",
-                artist: display?.artist.nonEmptyValue ?? "Unknown Artist",
-                album: display?.album.nonEmptyValue ?? "",
-                time: display?.time.nonEmptyValue ?? "",
-                occurrences: uniqueOccurrences
-            )
+        var errorDescription: String? {
+            "Music returned incomplete song details. Please scan again."
         }
-        .sorted { lhs, rhs in
+    }
+
+    static func duplicates(
+        from playlists: [PlaylistTrackSnapshot],
+        loadMetadata: (_ playlistIndex: Int, _ databaseIDs: Set<Int>) throws -> [Int: TrackMetadata]
+    ) throws -> [DuplicateSong] {
+        var playlistIndicesByTrack: [Int: [Int]] = [:]
+        var seenPlaylists = Set<String>()
+
+        for (index, snapshot) in playlists.enumerated() {
+            guard seenPlaylists.insert(snapshot.playlist.playlistID).inserted else { continue }
+
+            // Repeats inside one playlist do not count as cross-playlist duplicates.
+            for databaseID in Set(snapshot.databaseIDs) where databaseID > 0 {
+                playlistIndicesByTrack[databaseID, default: []].append(index)
+            }
+        }
+
+        var duplicateIDsByFirstPlaylist: [Int: Set<Int>] = [:]
+        for (databaseID, indices) in playlistIndicesByTrack where indices.count > 1 {
+            duplicateIDsByFirstPlaylist[indices[0], default: []].insert(databaseID)
+        }
+
+        var duplicates: [DuplicateSong] = []
+        for playlistIndex in duplicateIDsByFirstPlaylist.keys.sorted() {
+            let databaseIDs = duplicateIDsByFirstPlaylist[playlistIndex]!
+            // Each duplicate's metadata is read once, from its first playlist.
+            // The loader can release a playlist's bulk response before reading the next.
+            let metadata = try loadMetadata(playlistIndex, databaseIDs)
+
+            for databaseID in databaseIDs {
+                guard let display = metadata[databaseID] else {
+                    throw ScanError.incompleteMetadata
+                }
+
+                let occurrences = playlistIndicesByTrack[databaseID]!
+                    .map { playlists[$0].playlist }
+                    .sorted { lhs, rhs in
+                        lhs.playlistName.localizedStandardCompare(rhs.playlistName) == .orderedAscending
+                    }
+
+                duplicates.append(DuplicateSong(
+                    id: String(databaseID),
+                    title: display.title.nonEmptyValue ?? "Untitled",
+                    artist: display.artist.nonEmptyValue ?? "Unknown Artist",
+                    album: display.album.nonEmptyValue ?? "",
+                    time: display.time.nonEmptyValue ?? "",
+                    occurrences: occurrences
+                ))
+            }
+        }
+
+        return duplicates.sorted { lhs, rhs in
             lhs.title.localizedStandardCompare(rhs.title) == .orderedAscending
         }
     }
@@ -42,25 +83,6 @@ enum DuplicateAnalyzer {
                     playlistName: occurrence.playlistName
                 )
             }
-        }
-    }
-
-    private static func uniquePlaylistOccurrences(
-        from occurrences: [ScannedTrackOccurrence]
-    ) -> [PlaylistOccurrence] {
-        var seen = Set<String>()
-
-        return occurrences.compactMap { occurrence in
-            guard seen.insert(occurrence.playlistID).inserted else { return nil }
-
-            return PlaylistOccurrence(
-                playlistID: occurrence.playlistID,
-                playlistName: occurrence.playlistName,
-                canRemove: occurrence.canRemoveFromPlaylist
-            )
-        }
-        .sorted { lhs, rhs in
-            lhs.playlistName.localizedStandardCompare(rhs.playlistName) == .orderedAscending
         }
     }
 }
