@@ -26,11 +26,11 @@ final class MainViewModel {
     var lastRemovalResult: RemovalResult?
     private(set) var removalProgress: RemovalProgress?
 
-    private let musicAutomation: MusicAutomation
+    private let musicAutomation: any MusicLibrary
     private let musicPlayback: any MusicPlayback
 
     init(
-        musicAutomation: MusicAutomation = MusicAutomation(),
+        musicAutomation: any MusicLibrary = MusicAutomation(),
         musicPlayback: (any MusicPlayback)? = nil
     ) {
         self.musicAutomation = musicAutomation

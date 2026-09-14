@@ -10,7 +10,7 @@
 		098F3D4E8E024F61851F6996 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B4F5BBF25BC4645B4F7C264 /* Assets.xcassets */; };
 		03E1E2A14C1E4A0D8D882973 /* PlaybackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B76AE565A74AB9B1EA9F6E /* PlaybackTests.swift */; };
 		1C099D11A5E973C3D809D385 /* DuplicateAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BBF261B372384AC30DA06AC /* DuplicateAnalyzerTests.swift */; };
-		2CF1845D71EBEE0D34F75857 /* Music.m in Sources */ = {isa = PBXBuildFile; fileRef = F6C4AF8C3F04B3422F86F205 /* Music.m */; };
+		2CF1845D71EBEE0D34F75857 /* MusicAppleEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C4AF8C3F04B3422F86F205 /* MusicAppleEvents.swift */; };
 		79BF34AF40A22EAA1F836207 /* MusicAutomation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B446305A16CE465389647E00 /* MusicAutomation.swift */; };
 		8D9E0CC5C4EAF66A380DACC3 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13F05C70A4C4F9B26650C978 /* Models.swift */; };
 		A25B02C74E49E69258C58438 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA181B29D8EBD8256590BC96 /* ContentView.swift */; };
@@ -19,6 +19,9 @@
 		C449FBAFB2FE393EB651372E /* DuplicateAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3389CB9168EF5DE97144AEFB /* DuplicateAnalyzer.swift */; };
 		DCD2A0A70764411384C91A7C /* ReviewPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B42FB8E88BB4E5093990833 /* ReviewPane.swift */; };
 		EE1FE2BD06696062D72A30DC /* AppleMusicDeduplicatorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A31FEF8680F89D8CDB48DC /* AppleMusicDeduplicatorApp.swift */; };
+		AC0000000000000000000001 /* MusicAutomationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0000000000000000000002 /* MusicAutomationTests.swift */; };
+		AC0000000000000000000003 /* LiveMusicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0000000000000000000004 /* LiveMusicTests.swift */; };
+		AC0000000000000000000005 /* MainViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0000000000000000000006 /* MainViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,7 +72,10 @@
 		B635B12BC633D0D625E33DE7 /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		D8A31FEF8680F89D8CDB48DC /* AppleMusicDeduplicatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMusicDeduplicatorApp.swift; sourceTree = "<group>"; };
 		EA181B29D8EBD8256590BC96 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		F6C4AF8C3F04B3422F86F205 /* Music.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Music.m; sourceTree = "<group>"; };
+		F6C4AF8C3F04B3422F86F205 /* MusicAppleEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicAppleEvents.swift; sourceTree = "<group>"; };
+		AC0000000000000000000002 /* MusicAutomationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicAutomationTests.swift; sourceTree = "<group>"; };
+		AC0000000000000000000004 /* LiveMusicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveMusicTests.swift; sourceTree = "<group>"; };
+		AC0000000000000000000006 /* MainViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,7 +133,7 @@
 				3389CB9168EF5DE97144AEFB /* DuplicateAnalyzer.swift */,
 				B635B12BC633D0D625E33DE7 /* MainViewModel.swift */,
 				13F05C70A4C4F9B26650C978 /* Models.swift */,
-				F6C4AF8C3F04B3422F86F205 /* Music.m */,
+				F6C4AF8C3F04B3422F86F205 /* MusicAppleEvents.swift */,
 				B446305A16CE465389647E00 /* MusicAutomation.swift */,
 			);
 			path = AppleMusicDeduplicator;
@@ -138,6 +144,9 @@
 			children = (
 				3BBF261B372384AC30DA06AC /* DuplicateAnalyzerTests.swift */,
 				99B76AE565A74AB9B1EA9F6E /* PlaybackTests.swift */,
+				AC0000000000000000000006 /* MainViewModelTests.swift */,
+				AC0000000000000000000004 /* LiveMusicTests.swift */,
+				AC0000000000000000000002 /* MusicAutomationTests.swift */,
 			);
 			path = AppleMusicDeduplicatorTests;
 			sourceTree = "<group>";
@@ -261,6 +270,9 @@
 			files = (
 				1C099D11A5E973C3D809D385 /* DuplicateAnalyzerTests.swift in Sources */,
 				03E1E2A14C1E4A0D8D882973 /* PlaybackTests.swift in Sources */,
+				AC0000000000000000000005 /* MainViewModelTests.swift in Sources */,
+				AC0000000000000000000003 /* LiveMusicTests.swift in Sources */,
+				AC0000000000000000000001 /* MusicAutomationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,7 +287,7 @@
 				C449FBAFB2FE393EB651372E /* DuplicateAnalyzer.swift in Sources */,
 				B658C9406A0875D82D418A40 /* MainViewModel.swift in Sources */,
 				8D9E0CC5C4EAF66A380DACC3 /* Models.swift in Sources */,
-				2CF1845D71EBEE0D34F75857 /* Music.m in Sources */,
+				2CF1845D71EBEE0D34F75857 /* MusicAppleEvents.swift in Sources */,
 				79BF34AF40A22EAA1F836207 /* MusicAutomation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -458,7 +470,6 @@
 				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OBJC_BRIDGING_HEADER = "Sources/AppleMusicDeduplicator/MusicBridge-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 6.0;
@@ -518,7 +529,6 @@
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
 				SWIFT_COMPILATION_MODE = singlefile;
-				SWIFT_OBJC_BRIDGING_HEADER = "Sources/AppleMusicDeduplicator/MusicBridge-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 6.0;
