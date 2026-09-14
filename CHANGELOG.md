@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- Swift regression coverage for Music events, bulk reads, playlist-scoped removals, partial failures, and review state, plus an opt-in live temporary-playlist test alongside the live playback test.
+
+### Changed
+
+- Complete the Swift conversion by replacing the generated Objective-C Music bridge with a focused Swift Apple-event client and removing the bridging header from Debug and Release builds.
+- Preserve the SwiftUI interface, playlist filtering and selection, bulk duplicate scans, keep choices, locked playlists, playback, removal progress, and post-removal verification.
+- Check each deletion reply before counting it as removed, and reject scans when a selected playlist is no longer available.
+
 ## [1.2.0] - 2026-09-05
 
 macOS build: 5.
