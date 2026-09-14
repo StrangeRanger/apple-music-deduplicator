@@ -1,15 +1,25 @@
 import Foundation
-import ScriptingBridge
 
 protocol MusicPlayback: Sendable {
     func play(_ song: DuplicateSong) async throws
     func pause() async throws
 }
 
+protocol MusicLibrary: MusicPlayback {
+    func loadPlaylists() async throws -> [PlaylistSummary]
+    func scanPlaylists(withIDs playlistIDs: Set<String>) async throws -> [DuplicateSong]
+    func applyRemovals(
+        _ requests: [RemovalRequest],
+        progressHandler: @escaping @Sendable (RemovalProgress) -> Void
+    ) async throws -> RemovalResult
+}
+
 enum MusicAutomationError: LocalizedError {
     case musicUnavailable
+    case musicLaunchFailed(String)
     case permissionDenied
     case appleEventFailed(String)
+    case objectNotFound
     case playlistUnavailable(String)
     case invalidTrackData(String)
     case playlistChanged(String)
@@ -19,10 +29,14 @@ enum MusicAutomationError: LocalizedError {
         switch self {
         case .musicUnavailable:
             "Music is not available on this Mac."
+        case .musicLaunchFailed(let message):
+            "Could not open Music: \(message)"
         case .permissionDenied:
             "Music access was denied. Enable this app under System Settings > Privacy & Security > Automation, then try again."
         case .appleEventFailed(let message):
             message
+        case .objectNotFound:
+            "Music could not find the requested item. Please scan again."
         case .playlistUnavailable(let playlistName):
             "Could not find playlist \"\(playlistName)\"."
         case .invalidTrackData(let playlistName):
@@ -35,116 +49,77 @@ enum MusicAutomationError: LocalizedError {
     }
 }
 
-final class MusicAutomation: MusicPlayback {
+final class MusicAutomation: MusicLibrary {
+    private let prepareConnection: @Sendable () async throws -> Void
+    private let makeConnection: @Sendable () throws -> MusicAppleEvents
+
+    init() {
+        self.prepareConnection = MusicAppleEvents.prepareApplication
+        self.makeConnection = MusicAppleEvents.live
+    }
+
+    init(
+        prepareConnection: @escaping @Sendable () async throws -> Void = {},
+        makeConnection: @escaping @Sendable () throws -> MusicAppleEvents
+    ) {
+        self.prepareConnection = prepareConnection
+        self.makeConnection = makeConnection
+    }
+
     func play(_ song: DuplicateSong) async throws {
-        guard let databaseID = Int(song.id), databaseID > 0 else {
+        guard let databaseID = Int32(song.id), databaseID > 0 else {
             throw MusicAutomationError.trackUnavailable(song.title)
         }
-
-        try await Self.runOffMain {
-            let music = try Self.musicApplication()
-
-            // Filter the live element array by library identity. Playlist object
-            // IDs and song titles are not reliable substitutes for database IDs.
-            let track = AMDFindTrack(music, databaseID)
-            try Self.throwLastErrorIfNeeded(from: music)
-            guard let track else {
-                throw MusicAutomationError.trackUnavailable(song.title)
-            }
-
-            AMDPlayTrackOnce(music, track)
-            try Self.throwLastErrorIfNeeded(from: music)
+        try await prepareConnection()
+        try await Self.runOffMain { [makeConnection] in
+            try makeConnection().play(databaseID: databaseID, title: song.title)
         }
     }
 
     func pause() async throws {
-        try await Self.runOffMain {
-            let music = try Self.musicApplication()
-            music.pause()
-            try Self.throwLastErrorIfNeeded(from: music)
+        try await prepareConnection()
+        try await Self.runOffMain { [makeConnection] in
+            try makeConnection().pause()
         }
     }
 
     func loadPlaylists() async throws -> [PlaylistSummary] {
-        try await Self.runOffMain {
-            let music = try Self.musicApplication()
-            music.fixedIndexing = true
-
-            let summaries = Self.allUserPlaylists(in: music).compactMap { playlistContext -> PlaylistSummary? in
-                let playlist = playlistContext.playlist
-                guard let playlistID = playlist.persistentID.nonEmptyValue,
-                      playlist.specialKind != MusicESpKFolder else {
-                    return nil
-                }
-
-                return PlaylistSummary(
-                    id: playlistID,
-                    name: playlist.name.nonEmptyValue ?? "Untitled Playlist",
-                    sourceName: playlistContext.sourceName,
-                    trackCount: playlist.tracks().count,
-                    canRemoveTracks: Self.canRemoveTracks(from: playlist),
-                    kindLabel: Self.kindLabel(for: playlist)
+        try await prepareConnection()
+        return try await Self.runOffMain { [makeConnection] in
+            let music = try makeConnection()
+            return try music.userPlaylists().map { playlist in
+                try PlaylistSummary(
+                    id: playlist.id, name: playlist.name, sourceName: playlist.sourceName,
+                    trackCount: music.trackCount(in: playlist),
+                    canRemoveTracks: playlist.canRemove, kindLabel: playlist.kindLabel
                 )
-            }
-            .sorted { lhs, rhs in
-                lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
-            }
-
-            try Self.throwLastErrorIfNeeded(from: music)
-            return summaries
+            }.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         }
     }
 
     func scanPlaylists(withIDs playlistIDs: Set<String>) async throws -> [DuplicateSong] {
         guard playlistIDs.count >= 2 else { return [] }
-
-        return try await Self.runOffMain {
-            let music = try Self.musicApplication()
-            music.fixedIndexing = true
-
-            var selectedPlaylists: [MusicUserPlaylist] = []
-            var snapshots: [PlaylistTrackSnapshot] = []
-            for context in Self.allUserPlaylists(in: music) {
-                let playlist = context.playlist
-                guard let playlistID = playlist.persistentID.nonEmptyValue,
-                      playlistIDs.contains(playlistID) else { continue }
-
-                let occurrence = PlaylistOccurrence(
-                    playlistID: playlistID,
-                    playlistName: playlist.name.nonEmptyValue ?? "Untitled Playlist",
-                    canRemove: Self.canRemoveTracks(from: playlist)
-                )
-                let databaseIDs = try Self.trackDatabaseIDs(
-                    in: playlist.tracks(), playlistName: occurrence.playlistName, music: music
-                )
-                selectedPlaylists.append(playlist)
-                snapshots.append(PlaylistTrackSnapshot(playlist: occurrence, databaseIDs: databaseIDs))
+        try await prepareConnection()
+        return try await Self.runOffMain { [makeConnection] in
+            let music = try makeConnection()
+            let selected = try music.userPlaylists(withIDs: playlistIDs)
+            if let missingID = playlistIDs.subtracting(selected.map(\.id)).sorted().first {
+                throw MusicAutomationError.playlistUnavailable(missingID)
             }
-
-            try Self.throwLastErrorIfNeeded(from: music)
-            return try DuplicateAnalyzer.duplicates(from: snapshots) { playlistIndex, databaseIDs in
+            let snapshots = try selected.map {
+                try PlaylistTrackSnapshot(playlist: $0.occurrence, databaseIDs: music.databaseIDs(in: $0))
+            }
+            return try DuplicateAnalyzer.duplicates(from: snapshots) { index, requestedIDs in
                 try autoreleasepool {
-                    let snapshot = snapshots[playlistIndex]
-                    guard let tracks = selectedPlaylists[playlistIndex].tracks() else {
-                        throw MusicAutomationError.invalidTrackData(snapshot.playlist.playlistName)
-                    }
-
-                    // Apply selectors to the live SBElementArray, before get() or Swift
-                    // iteration, so each property is fetched in one Apple event.
-                    let titles = tracks.array(byApplying: #selector(getter: MusicTrack.name))
-                    try Self.throwLastErrorIfNeeded(from: music)
-                    let artists = tracks.array(byApplying: #selector(getter: MusicTrack.artist))
-                    try Self.throwLastErrorIfNeeded(from: music)
-                    let albums = tracks.array(byApplying: #selector(getter: MusicTrack.album))
-                    try Self.throwLastErrorIfNeeded(from: music)
-                    let times = tracks.array(byApplying: #selector(getter: MusicTrack.time))
-                    try Self.throwLastErrorIfNeeded(from: music)
-                    let currentIDs = try Self.trackDatabaseIDs(
-                        in: tracks, playlistName: snapshot.playlist.playlistName, music: music
-                    )
-
+                    let playlist = selected[index]
+                    // Read complete columns, once per playlist that describes duplicates.
+                    let titles = try music.trackColumn(MusicCode.name, in: playlist).map { $0.stringValue ?? "" }
+                    let artists = try music.trackColumn(MusicCode.artist, in: playlist).map { $0.stringValue ?? "" }
+                    let albums = try music.trackColumn(MusicCode.album, in: playlist).map { $0.stringValue ?? "" }
+                    let times = try music.trackColumn(MusicCode.time, in: playlist).map { $0.stringValue ?? "" }
                     return try Self.trackMetadata(
-                        for: snapshot, requestedIDs: databaseIDs, currentIDs: currentIDs,
+                        for: snapshots[index], requestedIDs: requestedIDs,
+                        currentIDs: music.databaseIDs(in: playlist),
                         titles: titles, artists: artists, albums: albums, times: times
                     )
                 }
@@ -156,101 +131,66 @@ final class MusicAutomation: MusicPlayback {
         _ requests: [RemovalRequest],
         progressHandler: @escaping @Sendable (RemovalProgress) -> Void
     ) async throws -> RemovalResult {
-        try await Self.runOffMain {
-            let music = try Self.musicApplication()
-            music.fixedIndexing = true
-
-            let playlistPairs: [(String, MusicUserPlaylist)] = Self.allUserPlaylists(in: music).compactMap {
-                guard let playlistID = $0.playlist.persistentID.nonEmptyValue else {
-                    return nil
-                }
-
-                return (playlistID, $0.playlist)
+        guard !requests.isEmpty else {
+            return RemovalResult(requestedCount: 0, removedEntries: 0, failures: [])
+        }
+        try await prepareConnection()
+        return try await Self.runOffMain { [makeConnection] in
+            let music = try makeConnection()
+            var playlistsByID: [String: MusicAppleEvents.Playlist] = [:]
+            for playlist in try music.userPlaylists(withIDs: Set(requests.map(\.playlistID))) {
+                playlistsByID[playlist.id] = playlist
             }
-            let playlistsByID = Dictionary(uniqueKeysWithValues: playlistPairs)
-
             var removedEntries = 0
             var failures: [RemovalFailure] = []
             var completedRequests = 0
 
-            func recordFailure(_ request: RemovalRequest, message: String) {
-                failures.append(
-                    RemovalFailure(
-                        trackKey: request.trackKey,
-                        playlistID: request.playlistID,
-                        trackTitle: request.trackTitle,
-                        playlistName: request.playlistName,
-                        message: message
-                    )
-                )
+            func finish(_ request: RemovalRequest, failure: String? = nil) {
+                if let failure {
+                    failures.append(RemovalFailure(
+                        trackKey: request.trackKey, playlistID: request.playlistID,
+                        trackTitle: request.trackTitle, playlistName: request.playlistName, message: failure
+                    ))
+                }
                 completedRequests += 1
                 Self.reportProgress(
-                    completedRequests: completedRequests,
-                    totalRequests: requests.count,
-                    removedEntries: removedEntries,
-                    request: request,
-                    progressHandler: progressHandler
+                    completedRequests: completedRequests, totalRequests: requests.count,
+                    removedEntries: removedEntries, request: request, progressHandler: progressHandler
                 )
             }
 
             for batch in Self.removalBatches(from: requests) {
-                guard let firstRequest = batch.first else { continue }
-
-                guard let playlist = playlistsByID[firstRequest.playlistID] else {
+                guard let first = batch.first else { continue }
+                guard let playlist = playlistsByID[first.playlistID] else {
                     for request in batch {
-                        recordFailure(
-                            request,
-                            message: MusicAutomationError.playlistUnavailable(request.playlistName)
-                                .localizedDescription
-                        )
+                        finish(request, failure: MusicAutomationError.playlistUnavailable(request.playlistName).localizedDescription)
                     }
                     continue
                 }
-
-                guard Self.canRemoveTracks(from: playlist) else {
-                    for request in batch {
-                        recordFailure(
-                            request,
-                            message: "This playlist cannot be edited by Music automation."
-                        )
-                    }
+                guard playlist.canRemove else {
+                    for request in batch { finish(request, failure: "This playlist cannot be edited by Music automation.") }
                     continue
                 }
-
-                var tracksByKey = Dictionary(grouping: Self.tracks(in: playlist)) {
-                    String($0.databaseID)
-                }
-
+                var tracksByKey = Dictionary(grouping: try music.entries(in: playlist)) { String($0.databaseID) }
                 for request in batch {
-                    guard let matchingTracks = tracksByKey.removeValue(forKey: request.trackKey),
-                          !matchingTracks.isEmpty else {
-                        recordFailure(request, message: "Track was not found in this playlist.")
+                    guard let matches = tracksByKey.removeValue(forKey: request.trackKey), !matches.isEmpty else {
+                        finish(request, failure: "Track was not found in this playlist.")
                         continue
                     }
-
-                    for track in matchingTracks.reversed() {
-                        track.delete()
-                        removedEntries += 1
+                    do {
+                        for entry in matches.reversed() {
+                            try music.delete(entry, from: playlist)
+                            removedEntries += 1
+                        }
+                        finish(request)
+                    } catch {
+                        // Count only acknowledged deletions, including partial success
+                        // when Music rejects a later occurrence of the same song.
+                        finish(request, failure: error.localizedDescription)
                     }
-
-                    completedRequests += 1
-                    Self.reportProgress(
-                        completedRequests: completedRequests,
-                        totalRequests: requests.count,
-                        removedEntries: removedEntries,
-                        request: request,
-                        progressHandler: progressHandler
-                    )
                 }
             }
-
-            try Self.throwLastErrorIfNeeded(from: music)
-
-            return RemovalResult(
-                requestedCount: requests.count,
-                removedEntries: removedEntries,
-                failures: failures
-            )
+            return RemovalResult(requestedCount: requests.count, removedEntries: removedEntries, failures: failures)
         }
     }
 
@@ -268,11 +208,6 @@ final class MusicAutomation: MusicPlayback {
         }
 
         return batches
-    }
-
-    private struct PlaylistContext {
-        let playlist: MusicUserPlaylist
-        let sourceName: String
     }
 
     private static func runOffMain<Value: Sendable>(
@@ -305,58 +240,6 @@ final class MusicAutomation: MusicPlayback {
                 currentPlaylistName: request.playlistName
             )
         )
-    }
-
-    private static func musicApplication() throws -> MusicApplication {
-        guard NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Music") != nil else {
-            throw MusicAutomationError.musicUnavailable
-        }
-
-        guard let music = MusicApplication(bundleIdentifier: "com.apple.Music") else {
-            throw MusicAutomationError.musicUnavailable
-        }
-
-        return music
-    }
-
-    private static func allUserPlaylists(in music: MusicApplication) -> [PlaylistContext] {
-        sources(in: music)
-            .filter { $0.kind == MusicESrcLibrary }
-            .flatMap { source in
-                let sourceName = source.name.nonEmptyValue ?? "Library"
-                return userPlaylists(in: source).map {
-                    PlaylistContext(playlist: $0, sourceName: sourceName)
-                }
-            }
-    }
-
-    private static func sources(in music: MusicApplication) -> [MusicSource] {
-        (music.sources().get() as? [MusicSource]) ?? []
-    }
-
-    private static func userPlaylists(in source: MusicSource) -> [MusicUserPlaylist] {
-        (source.userPlaylists().get() as? [MusicUserPlaylist]) ?? []
-    }
-
-    private static func tracks(in playlist: MusicPlaylist) -> [MusicTrack] {
-        (playlist.tracks().get() as? [MusicTrack]) ?? []
-    }
-
-    private static func trackDatabaseIDs(
-        in tracks: SBElementArray,
-        playlistName: String,
-        music: MusicApplication
-    ) throws -> [Int] {
-        try autoreleasepool {
-            // KVC boxes the scalar databaseID property and fetches the entire column.
-            let values = tracks.value(forKey: "databaseID")
-            try throwLastErrorIfNeeded(from: music)
-            guard let numbers = values as? [NSNumber] else {
-                throw MusicAutomationError.invalidTrackData(playlistName)
-            }
-
-            return numbers.map(\.intValue)
-        }
     }
 
     static func trackMetadata(
@@ -393,46 +276,4 @@ final class MusicAutomation: MusicPlayback {
         return metadata
     }
 
-    private static func canRemoveTracks(from playlist: MusicUserPlaylist) -> Bool {
-        playlist.specialKind == MusicESpKNone && !playlist.smart && !playlist.genius
-    }
-
-    private static func kindLabel(for playlist: MusicUserPlaylist) -> String {
-        if playlist.smart {
-            return "Smart"
-        }
-
-        if playlist.genius {
-            return "Genius"
-        }
-
-        switch playlist.specialKind {
-        case MusicESpKFolder:
-            return "Folder"
-        case MusicESpKNone:
-            return "Playlist"
-        default:
-            return "System"
-        }
-    }
-
-    private static func throwLastErrorIfNeeded(from music: MusicApplication) throws {
-        guard let error = music.lastError() else { return }
-
-        let nsError = error as NSError
-        if nsError.domain == NSOSStatusErrorDomain && nsError.code == -1743 {
-            throw MusicAutomationError.permissionDenied
-        }
-
-        throw MusicAutomationError.appleEventFailed(error.localizedDescription)
-    }
-}
-
-private extension Optional where Wrapped == String {
-    var nonEmptyValue: String? {
-        guard let value = self else { return nil }
-
-        let trimmed = value.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        return trimmed.isEmpty ? nil : trimmed
-    }
 }
