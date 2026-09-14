@@ -46,6 +46,38 @@ final class MusicAppleEvents {
         self.sender = sender
     }
 
+    @MainActor
+    static func prepareApplication() async throws {
+        let workspace = NSWorkspace.shared
+        guard let url = workspace.urlForApplication(withBundleIdentifier: "com.apple.Music") else {
+            throw MusicAutomationError.musicUnavailable
+        }
+        if NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music")
+            .contains(where: { $0.isFinishedLaunching && !$0.isTerminated }) {
+            return
+        }
+
+        // Direct Apple events do not launch their target. Await Launch Services
+        // before creating the connection, keeping the deduplicator in front.
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = false
+        let application: NSRunningApplication
+        do {
+            application = try await workspace.openApplication(at: url, configuration: configuration)
+        } catch {
+            throw MusicAutomationError.musicLaunchFailed(error.localizedDescription)
+        }
+        let deadline = ContinuousClock.now.advanced(by: .seconds(30))
+        while !application.isFinishedLaunching {
+            guard !application.isTerminated, ContinuousClock.now < deadline else {
+                throw MusicAutomationError.musicLaunchFailed("Music did not finish starting. Please open Music and try again.")
+            }
+            // Suspending on the main actor lets launch notifications and UI
+            // updates run while Music initializes its Apple-event handlers.
+            try await Task.sleep(for: .milliseconds(50))
+        }
+    }
+
     static func live() throws -> MusicAppleEvents {
         guard NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Music") != nil else {
             throw MusicAutomationError.musicUnavailable

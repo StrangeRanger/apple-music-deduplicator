@@ -16,6 +16,7 @@ protocol MusicLibrary: MusicPlayback {
 
 enum MusicAutomationError: LocalizedError {
     case musicUnavailable
+    case musicLaunchFailed(String)
     case permissionDenied
     case appleEventFailed(String)
     case objectNotFound
@@ -28,6 +29,8 @@ enum MusicAutomationError: LocalizedError {
         switch self {
         case .musicUnavailable:
             "Music is not available on this Mac."
+        case .musicLaunchFailed(let message):
+            "Could not open Music: \(message)"
         case .permissionDenied:
             "Music access was denied. Enable this app under System Settings > Privacy & Security > Automation, then try again."
         case .appleEventFailed(let message):
@@ -47,9 +50,19 @@ enum MusicAutomationError: LocalizedError {
 }
 
 final class MusicAutomation: MusicLibrary {
+    private let prepareConnection: @Sendable () async throws -> Void
     private let makeConnection: @Sendable () throws -> MusicAppleEvents
 
-    init(makeConnection: @escaping @Sendable () throws -> MusicAppleEvents = MusicAppleEvents.live) {
+    init() {
+        self.prepareConnection = MusicAppleEvents.prepareApplication
+        self.makeConnection = MusicAppleEvents.live
+    }
+
+    init(
+        prepareConnection: @escaping @Sendable () async throws -> Void = {},
+        makeConnection: @escaping @Sendable () throws -> MusicAppleEvents
+    ) {
+        self.prepareConnection = prepareConnection
         self.makeConnection = makeConnection
     }
 
@@ -57,19 +70,22 @@ final class MusicAutomation: MusicLibrary {
         guard let databaseID = Int32(song.id), databaseID > 0 else {
             throw MusicAutomationError.trackUnavailable(song.title)
         }
+        try await prepareConnection()
         try await Self.runOffMain { [makeConnection] in
             try makeConnection().play(databaseID: databaseID, title: song.title)
         }
     }
 
     func pause() async throws {
+        try await prepareConnection()
         try await Self.runOffMain { [makeConnection] in
             try makeConnection().pause()
         }
     }
 
     func loadPlaylists() async throws -> [PlaylistSummary] {
-        try await Self.runOffMain { [makeConnection] in
+        try await prepareConnection()
+        return try await Self.runOffMain { [makeConnection] in
             let music = try makeConnection()
             return try music.userPlaylists().map { playlist in
                 try PlaylistSummary(
@@ -83,6 +99,7 @@ final class MusicAutomation: MusicLibrary {
 
     func scanPlaylists(withIDs playlistIDs: Set<String>) async throws -> [DuplicateSong] {
         guard playlistIDs.count >= 2 else { return [] }
+        try await prepareConnection()
         return try await Self.runOffMain { [makeConnection] in
             let music = try makeConnection()
             let selected = try music.userPlaylists(withIDs: playlistIDs)
@@ -117,6 +134,7 @@ final class MusicAutomation: MusicLibrary {
         guard !requests.isEmpty else {
             return RemovalResult(requestedCount: 0, removedEntries: 0, failures: [])
         }
+        try await prepareConnection()
         return try await Self.runOffMain { [makeConnection] in
             let music = try makeConnection()
             var playlistsByID: [String: MusicAppleEvents.Playlist] = [:]
