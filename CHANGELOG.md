@@ -4,16 +4,20 @@ Notable changes to Apple Music Deduplicator are recorded here by version.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] - Unreleased
+
+macOS build: 6.
 
 ### Added
 
-- Swift regression coverage for Music events, bulk reads, playlist-scoped removals, partial failures, and review state, plus an opt-in live temporary-playlist test alongside the live playback test.
+- Swift regression coverage for Music events, bulk reads, playlist-scoped removals, partial failures, and review state, plus opt-in live tests for Music startup, playback, and temporary-playlist removal.
 
 ### Changed
 
 - Complete the Swift conversion by replacing the generated Objective-C Music bridge with a focused Swift Apple-event client and removing the bridging header from Debug and Release builds.
 - Preserve the SwiftUI interface, playlist filtering and selection, bulk duplicate scans, keep choices, locked playlists, playback, removal progress, and post-removal verification.
+- Reorganize the README around setup, playlist review, matching behavior, and development.
+- Configure a Codex Run action for the project build-and-run script.
 - Check each deletion reply before counting it as removed, and reject scans when a selected playlist is no longer available.
 
 ### Fixed
