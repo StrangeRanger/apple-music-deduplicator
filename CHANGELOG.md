@@ -16,6 +16,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 - Preserve the SwiftUI interface, playlist filtering and selection, bulk duplicate scans, keep choices, locked playlists, playback, removal progress, and post-removal verification.
 - Check each deletion reply before counting it as removed, and reject scans when a selected playlist is no longer available.
 
+### Fixed
+
+- Launch Music in the background and wait for startup before sending automation requests, preventing OSStatus -600 when opening the deduplicator with Music closed.
+
 ## [1.2.0] - 2026-09-05
 
 macOS build: 5.
