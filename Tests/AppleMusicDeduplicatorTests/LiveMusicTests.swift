@@ -3,6 +3,38 @@ import XCTest
 
 @MainActor
 final class LiveMusicTests: XCTestCase {
+    func testLiveLoadsPlaylistsWhenMusicIsClosed() async throws {
+        guard ProcessInfo.processInfo.environment["AMD_RUN_LIVE_STARTUP_TEST"] == "1" else {
+            throw XCTSkip("Set TEST_RUNNER_AMD_RUN_LIVE_STARTUP_TEST=1 to test launching Music")
+        }
+        // The test host may have already opened Music through ContentView's
+        // initial load. Quit it explicitly so this always covers a cold start.
+        if !NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music").isEmpty {
+            let music = try MusicAppleEvents.live()
+            guard try music.value(MusicCode.playerState).enumCodeValue != MusicCode.playing else {
+                throw XCTSkip("Pause Music before running the startup test")
+            }
+            try music.send(AEEventClass(kCoreEventClass), AEEventID(kAEQuitApplication))
+        }
+        let deadline = ContinuousClock.now.advanced(by: .seconds(10))
+        while !NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music").isEmpty,
+              ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        guard NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music").isEmpty else {
+            return XCTFail("Music did not quit; startup was not tested")
+        }
+
+        let playlists = try await MusicAutomation().loadPlaylists()
+
+        XCTAssertFalse(NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music").isEmpty)
+        XCTAssertTrue(playlists.allSatisfy { !$0.id.isEmpty })
+        // The warm path must also work, using the existing Music process.
+        let processID = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music").first?.processIdentifier
+        _ = try await MusicAutomation().loadPlaylists()
+        XCTAssertEqual(NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music").first?.processIdentifier, processID)
+    }
+
     func testLivePlaylistScanAndRemovalPreserveLibraryTrack() async throws {
         guard ProcessInfo.processInfo.environment["AMD_RUN_LIVE_PLAYLIST_TEST"] == "1" else {
             throw XCTSkip("Set TEST_RUNNER_AMD_RUN_LIVE_PLAYLIST_TEST=1 to test temporary playlists in Music")

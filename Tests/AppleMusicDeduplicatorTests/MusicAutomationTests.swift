@@ -3,6 +3,51 @@ import XCTest
 
 @MainActor
 final class MusicAutomationTests: XCTestCase {
+    func testEveryOperationWaitsForMusicBeforeSendingEvents() async throws {
+        for operation in operations {
+            let started = expectation(description: "Waiting for Music to launch")
+            let gate = MusicStartupGate { started.fulfill() }
+            let server = MusicTestServer()
+            let automation = MusicAutomation(
+                prepareConnection: { await gate.prepare() },
+                makeConnection: { MusicAppleEvents(sender: server.respond) }
+            )
+            let task = Task { try await operation(automation) }
+            await fulfillment(of: [started], timeout: 2)
+            XCTAssertTrue(server.snapshot().events.isEmpty, "No event may precede Music's launch completion")
+            await gate.finish()
+            try await task.value
+            XCTAssertFalse(server.snapshot().events.isEmpty)
+        }
+    }
+
+    func testLaunchFailurePreventsEveryOperationFromConnecting() async {
+        for operation in operations {
+            let automation = MusicAutomation(
+                prepareConnection: { throw MusicAutomationError.musicLaunchFailed("Test failure") },
+                makeConnection: { XCTFail("A failed launch must not send an Apple event"); throw MusicAutomationError.musicUnavailable }
+            )
+            do {
+                try await operation(automation)
+                XCTFail("Launch failure must be reported")
+            } catch MusicAutomationError.musicLaunchFailed(let message) {
+                XCTAssertEqual(message, "Test failure")
+            } catch { XCTFail("Unexpected error: \(error)") }
+        }
+    }
+
+    private var operations: [@Sendable (MusicAutomation) async throws -> Void] {
+        [
+            { _ = try await $0.loadPlaylists() },
+            { _ = try await $0.scanPlaylists(withIDs: ["a", "b"]) },
+            { _ = try await $0.applyRemovals([
+                RemovalRequest(trackKey: "42", playlistID: "a", trackTitle: "Song", playlistName: "a")
+            ]) { _ in } },
+            { try await $0.play(DuplicateSong(id: "42", title: "Song", artist: "", album: "", time: "", occurrences: [])) },
+            { try await $0.pause() }
+        ]
+    }
+
     func testLoadsCountsTypesAndNaturalOrderWithoutFoldersOrRemoteSources() async throws {
         let server = MusicTestServer()
         let playlists = try await server.automation.loadPlaylists()
@@ -119,7 +164,10 @@ final class MusicAutomationTests: XCTestCase {
     }
 
     func testEmptyOperationsDoNotConnectToMusic() async throws {
-        let automation = MusicAutomation { XCTFail("No connection expected"); throw MusicAutomationError.musicUnavailable }
+        let automation = MusicAutomation(
+            prepareConnection: { XCTFail("Empty operations must not launch Music") },
+            makeConnection: { XCTFail("No connection expected"); throw MusicAutomationError.musicUnavailable }
+        )
         let duplicates = try await automation.scanPlaylists(withIDs: ["a"])
         let result = try await automation.applyRemovals([]) { _ in XCTFail("No progress expected") }
         XCTAssertTrue(duplicates.isEmpty)
@@ -161,6 +209,19 @@ final class MusicAutomationTests: XCTestCase {
     private func request(_ track: String, _ playlist: String) -> RemovalRequest {
         RemovalRequest(trackKey: track, playlistID: playlist, trackTitle: "Song \(track)", playlistName: playlist)
     }
+}
+
+private actor MusicStartupGate {
+    private let onStart: @Sendable () -> Void
+    private var continuation: CheckedContinuation<Void, Never>?
+    init(onStart: @escaping @Sendable () -> Void) { self.onStart = onStart }
+    func prepare() async {
+        await withCheckedContinuation {
+            continuation = $0
+            onStart()
+        }
+    }
+    func finish() { continuation?.resume(); continuation = nil }
 }
 
 private final class ProgressRecorder: @unchecked Sendable {
@@ -226,7 +287,7 @@ private final class MusicTestServer: @unchecked Sendable {
         return playlistID(in: reference.forKeyword(AEKeyword(keyAEContainer)))
     }
 
-    private func respond(_ event: NSAppleEventDescriptor) throws -> NSAppleEventDescriptor {
+    func respond(_ event: NSAppleEventDescriptor) throws -> NSAppleEventDescriptor {
         try lock.withLock {
             let direct = event.paramDescriptor(forKeyword: AEKeyword(keyDirectObject)) ?? .null()
             let wanted = direct.forKeyword(AEKeyword(keyAEDesiredClass))?.typeCodeValue ?? 0
