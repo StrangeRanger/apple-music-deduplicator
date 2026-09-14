@@ -8,16 +8,28 @@ final class PlaybackTests: XCTestCase {
         guard ProcessInfo.processInfo.environment["AMD_RUN_LIVE_PLAYBACK_TEST"] == "1" else {
             throw XCTSkip("Set TEST_RUNNER_AMD_RUN_LIVE_PLAYBACK_TEST=1 to test real Music playback")
         }
-        let music = try XCTUnwrap(MusicApplication(bundleIdentifier: "com.apple.Music"))
-        let previousID = music.currentTrack?.databaseID
-        let tracks = try XCTUnwrap(music.tracks())
-        guard let track = (0..<min(tracks.count, 3)).compactMap({
-            tracks.object(at: $0) as? MusicTrack
-        }).first(where: { $0.databaseID > 0 && $0.databaseID != previousID }) else {
+        let music = try MusicAppleEvents.live()
+        func currentID() throws -> Int {
+            try MusicAppleEvents.integer(music.value(
+                MusicCode.databaseID, of: MusicAppleEvents.property(MusicCode.currentTrack)
+            ))
+        }
+        let previousID = try? currentID()
+        var trackID: Int?
+        for index in 1...3 {
+            let reference = MusicAppleEvents.object(
+                MusicCode.track, form: OSType(formAbsolutePosition), key: NSAppleEventDescriptor(int32: Int32(index))
+            )
+            if let candidate = try? MusicAppleEvents.integer(music.value(MusicCode.databaseID, of: reference)),
+               candidate > 0, candidate != previousID {
+                trackID = candidate
+                break
+            }
+        }
+        guard let trackID else {
             throw XCTSkip("A different library song is required to verify track switching")
         }
-        let trackID = track.databaseID
-        defer { music.pause() }
+        defer { try? music.pause() }
 
         try await MusicAutomation().play(song(id: String(trackID)))
 
@@ -28,12 +40,12 @@ final class PlaybackTests: XCTestCase {
         var previousPosition: Double?
         while clock.now < deadline {
             try await Task.sleep(for: .milliseconds(500))
-            guard music.currentTrack?.databaseID == trackID,
-                  music.playerState == MusicEPlSPlaying else {
+            guard try currentID() == trackID,
+                  try music.value(MusicCode.playerState).enumCodeValue == MusicCode.playing else {
                 previousPosition = nil
                 continue
             }
-            let position = music.playerPosition
+            let position = try music.value(MusicCode.playerPosition).doubleValue
             if let previousPosition, position > previousPosition {
                 return
             }
@@ -124,7 +136,7 @@ final class PlaybackTests: XCTestCase {
 
     func testInvalidTrackIDsAreRejectedBeforeContactingMusic() async {
         let automation = MusicAutomation()
-        for id in ["", "0", "-1", "not-an-id", "999999999999999999999999999999"] {
+        for id in ["", "0", "-1", "not-an-id", "2147483648", "999999999999999999999999999999"] {
             do {
                 try await automation.play(song(id: id))
                 XCTFail("Invalid track IDs must not trigger playback")
