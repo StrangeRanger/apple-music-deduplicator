@@ -1,5 +1,7 @@
 # Apple Music Deduplicator
 
+[![Project Tracker](https://img.shields.io/badge/repo%20status-Project%20Tracker-lightgrey)](https://hthompson.dev/project-tracker#project-1270464752)
+
 A native macOS app for finding songs shared across Apple Music playlists and choosing where to keep them. Removals affect playlist entries only; the songs remain in your Music library.
 
 ## Requirements
