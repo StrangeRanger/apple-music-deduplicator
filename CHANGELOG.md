@@ -4,7 +4,15 @@ Notable changes to Apple Music Deduplicator are recorded here by version.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - Unreleased
+## [2.0.1] - 2026-09-16
+
+macOS build: 7.
+
+### Fixed
+
+- Launch Music hidden when starting it for automation so its window stays off the desktop.
+
+## [2.0.0] - 2026-09-14
 
 macOS build: 6.
 
