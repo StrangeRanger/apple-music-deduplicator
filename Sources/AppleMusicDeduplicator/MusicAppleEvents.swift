@@ -61,6 +61,7 @@ final class MusicAppleEvents {
         // before creating the connection, keeping the deduplicator in front.
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.activates = false
+        configuration.hides = true
         let application: NSRunningApplication
         do {
             application = try await workspace.openApplication(at: url, configuration: configuration)
