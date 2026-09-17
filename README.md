@@ -20,7 +20,7 @@ From the repository root:
 
 This builds and launches the Debug app at `DerivedData/Build/Products/Debug/AppleMusicDeduplicator.app`. You can also open `AppleMusicDeduplicator.xcodeproj` in Xcode, select the `AppleMusicDeduplicator` scheme, and press **Command-R**.
 
-Allow the app to control Music when macOS requests Automation access. If access is denied, enable it under **System Settings > Privacy & Security > Automation**, then click **Reload Playlists**. Music opens automatically in the background when needed.
+Allow the app to control Music when macOS requests Automation access. If access is denied, enable it under **System Settings > Privacy & Security > Automation**, then click **Reload Playlists**. Music launches hidden when needed.
 
 ## Review and Remove Duplicates
 
